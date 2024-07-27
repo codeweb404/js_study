@@ -1,5 +1,6 @@
-
+<div>
 <h1 style="background-color:rgb(243, 225, 79);display:inline-block;padding:23px 5px 0 18px;margin-right:5px">JS</h1><h1 style="display:inline;"> Tutorial</h1>
+</div>
 
 ## Chapter 1
 ####  Defining Variables
@@ -167,7 +168,7 @@ The following are some of the most common methods for numbers.
 #### Strings
 The following are some of the most common methods for strings.
 - `str.at(pos)` - allows negative indexing too.
-- `str.for..of` - iterate over characters in a string
+- `for..of` - iterate over characters in a string
 - `str.toLowerCase()`
 - `str.toUpperCase()`
 - `str.indexOf(substr, pos)` - returns the starting position of the first occurrence of substr. Optional second parameter allows search to start from that position.
@@ -238,6 +239,90 @@ Besides the `for..of` loop there are other ways to use iterables:
 1. Looping manually over iterables without `for..of`. This allows you to have more control over the iteration process.
 2. `Array.from(iterable, mapfunc)` - iterates over an iterable and returns an array of the results. An optional `mapfunc` can be provided, and when provided will apply the function to all the values before constructing the array.
 
+#### Map
+The map stores values as key/value pairs. These are some of the most used map functions:
+- `new Map()` – creates the map.
+- `map.set(key, value)` – stores the value by the key.
+- `map.get(key)` – returns the value by the key, undefined if key doesn’t exist in map.
+- `map.has(key)` – returns true if the key exists, false otherwise.
+- `map.delete(key)` – removes the element (the key/value pair) by the key.
+- `map.clear()` – removes everything from the map.
+- `map.size` – returns the current element count.
 
+Maps, unlike simple objects, can use objects as keys.
 
+- `map.keys()` – returns an iterable for the keys of the map.
+- `map.values()` - returns an iterable for the values of the map.
+- `map.entries()` - returns an iterable for the pairs `[key, value]` of the map. By default, `for..of` uses this iterable.
 
+Map also has a forEach method.
+
+There are various ways of initializing a map.
+1. An array of key/value pairs. `new Map(array_of_pairs);`
+2. An object; use the function `Object.entries(obj)`. `new Map(Object.entries(obj));`
+
+`Object.entries` creates an array of key/value pairs from objects. The function `object.fromEntries` does the reverse; it takes an array of key/value pairs and returns an object constructed form the pairs. Utilizing this, we can construct a object from a map; `Object.fromEntries(map);`
+
+#### Set
+A set is a collection which contains a set of values which can only occur once. The following are few of the most common methods:
+- `new Set([iterable])` – creates the set, and if an iterable object is provided (usually an array), copies values from it into the set.
+`set.add(value)` – adds a value, returns the set itself.
+`set.delete(value)` – removes the value, returns true if value existed at the moment of the call, otherwise false.
+`set.has(value)` – returns true if the value exists in the set, otherwise false.
+`set.clear()` – removes everything from the set.
+`set.size` – is the elements count.
+
+If you call `set.add` to an already existing value, nothing happens.
+Iteration over a set is possible with the `for..of` loop or the `forEach` method. Note: The `forEach` method for sets look like this: `set.forEach((value, valueAgain, set) => {});`. valueAgain exists for compatibility with `Map` whose functions have 3 legitamate arguments.
+`set.keys()`, `set.values()`, `set.entries()`, all exist for compatibility with `Map` as well.
+
+#### Iterating over Objects
+- `Object.keys(obj)` - returns an array of keys
+- `Object.values(obj)` - returns an array of values
+- `Object.entries(obj)` - returns an array of key/value pairs.
+
+These methods return actual arrays, not just iterables.
+So, when you want to transform objects(for example, use `filter`, which objects do not support), you can do so by using `Object.entires`, then use the array methods, then use `Object.fromEntries` to transform the array back into an object.
+
+#### Destructuring Assignments
+
+There are situations where you might want to unpack arrays or objecs into variables. This is where a destructuring assignment, a syntax which does just that, is used.
+
+##### Array Destructuring
+Array destructuring is done by the following syntax:
+```javascript
+    let arr = [1, 2, 3];
+    let [a, b, c] = arr; // a, b, c are each assigned 1, 2, 3
+```
+- by adding commas, you can 'throw away' unwanted elements. For example: `[a, , c]`
+- This syntax actually works with any iterable, not just arrays.
+
+When there are more elements than variables, the 'leftovers' are ommited from assignment. By putting a `...` in front of the last variable of the destructuring assignment, the 'leftovers' will be collected and assigned as an array to the variable with the `...`
+
+When there are more variables than elements, the variables with no assignements will be assigned `undefined` on default. You can specify the default value(the value to take when no assignment is done) of each variable by using the `=` operator as normal.
+
+##### Object Destructuring
+
+The object destructuring syntax is similar to that used by the array. One thing to note is that the variable names should match the property names of the object. The order of the variables do not matter.
+
+```javascript
+let obj = {
+    a: 10,
+    b: "abc",
+    c: True,
+};
+
+let {b, c, a} = obj; // The order doesn't matter
+```
+
+To assign the value of the properties of the object to different-named variables, use the colon to seperate the property name and the variable name. 
+
+```javascript
+let {a: var1, b: var2, c: var3} = obj;
+```
+
+Default value and the rest pattern `...` are used similarly to array destructuring.
+
+Nested destructuring is also possible to destructure more complex arrays or objects which have arrays or objects as elements/properties.
+
+When creating functions, by using objects as parameters and using destructuring to recieve parameters, you can provide default values for functions.
