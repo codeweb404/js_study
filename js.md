@@ -1,8 +1,8 @@
 <h1>
-<div style="background-color:rgb(243, 225, 79);display:inline-block;padding:23px 5px 0 18px;margin-right:5px">JS</div><div style="display:inline;"> Tutorial</div>
+<span style="background-color:rgb(243, 225, 79);padding:23px 5px 0 18px;margin-right:5px">JS</span><span> Tutorial</span>
 </h1>
 
-## Chapter 1
+## Chapter 1 - Fundamentals
 ####  Defining Variables
 There are 3 types of variables:
 1. `let` - can change
@@ -61,7 +61,7 @@ function functionTest(a, b="default valuse") {
 }
 ```
 
-## Chapter 2
+## Chapter 2 - Object Basics
 #### Objects
 Objects are a key-value pair.
 ```javascript
@@ -146,7 +146,7 @@ console.log(symbol === symbol2); // true
 ```
 Use `Symbol.keyFor(symbol)` to access the name of a symbol by it's value.
 
-## Chapter 3
+## Chapter 3 - Data Types
 #### Methods of primitives
 Primitives, unlike objects, do not have methods. However, one can still use primitives' 'methods'. This is possible because of 'object wrappers' which created when accessing the method and destroyed afterwards.
 #### Numbers
@@ -327,7 +327,7 @@ Nested destructuring is also possible to destructure more complex arrays or obje
 
 When creating functions, by using objects as parameters and using destructuring to recieve parameters, you can provide default values for functions.
 
-## Chapter 4
+## Chapter 4 - Error Handling
 #### Error Handling
 ##### The 'try...catch' syntax
 The `try...catch` allows the code to do something reasonable rather than just 'die' when it encounters an error. 
