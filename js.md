@@ -1,6 +1,6 @@
-<div>
-<h1 style="background-color:rgb(243, 225, 79);display:inline-block;padding:23px 5px 0 18px;margin-right:5px">JS</h1><h1 style="display:inline;"> Tutorial</h1>
-</div>
+<h1>
+<div style="background-color:rgb(243, 225, 79);display:inline-block;padding:23px 5px 0 18px;margin-right:5px">JS</div><div style="display:inline;"> Tutorial</div>
+</h1>
 
 ## Chapter 1
 ####  Defining Variables
@@ -326,3 +326,134 @@ Default value and the rest pattern `...` are used similarly to array destructuri
 Nested destructuring is also possible to destructure more complex arrays or objects which have arrays or objects as elements/properties.
 
 When creating functions, by using objects as parameters and using destructuring to recieve parameters, you can provide default values for functions.
+
+## Chapter 4
+#### Error Handling
+##### The 'try...catch' syntax
+The `try...catch` allows the code to do something reasonable rather than just 'die' when it encounters an error. 
+```javascript
+try {
+    // code
+} catch (err) {
+    // handle error
+}
+```
+This is the basic form of the `try...catch` syntax. The execution is as follows:
+1. Excute the code in `try{...}`. 
+2. If the code encounters an error, `try` execution is terminated and `catch(err)` will be executed.
+3. If the code encounters no errors, `catch` is ignored and execution finishes normally after finishing execution of `try`.
+##### Errors
+When a script encounters an error, an error object is generated and passed to `catch`. The object has two main properties: `name`, which contains the name of the error, and `message`, which contains the details. Another property which is useful is the `stack` property which is a strint containing information about the stack of calls which led to the error.
+
+You can throw your own errors by using `throw`:
+```javascript
+throw <error object>
+```
+There are many built-in constructors for errors such as `Error`, `SyntaxError`, `RefererError`, and `TypeError`. The syntax to construct an error using these constructors is:
+```javascript
+let error = new SyntaxError(errorMessage);
+```
+
+##### Rethrowing
+
+Using the `throw` syntax, you can employ a technique called 'rethrowing' to handle errors more elegantly. In a simple `try...catch` statment, every error goes to `catch`. This might result in `catch` running the wrong code for an error which was intended to be executed when a different type of error was encountered. Therefore, `catch` should only process the errors it 'knows'. Rethrowing acheives this by checking the error type and 'rethrowing', i.e., using the `throw` syntax to throw the error if it isn't a error that it is meant to process.
+```javascript
+try {
+    // code
+} catch(err) {
+    if(err instanceof SyntaxError) {
+        // code
+    }
+    else {
+        throw(err); //rethrow
+    }
+}
+```
+Now it is possible to have multiple 'layers' of `try...catch` statements to process errors elegantly:
+```javascript
+function func() {
+    // code
+    try {
+        // code
+    } catch(err) {
+        if(err instanceof SyntaxError) {
+            // code
+        }
+        else {
+            throw err; //rethrow
+        }
+    }
+}
+
+try {
+    func();
+} catch(err) {
+    // code; this catch statement processes the errors which the catch statement in func rethrows.
+}
+```
+
+##### The 'finally' statement
+
+Finally, there is a statment called `finally` which can come after the `catch` statement. `finally` is always executed regardless of wether the script encounters an error or not.
+```javascript
+try {
+    // code
+} catch (err) {
+    // code; executes if try encounters an error.
+} finally {
+    // code; is guaranteed to execue.
+}
+```
+
+#### Custom Errors
+##### Extending Error
+While technically anything can be used as an error object, it is better to inherit from the base `Error` object. The basic syntax is:
+```javascript
+class SomeError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = "SomeError";
+    }
+}
+```
+##### Wrapping Exceptions
+A script may generate many different types of error. If you don't want to check every time for specific errors, but would like to just check for a general class of errors, you can employ a technique called 'wrapping exceptions' to achieve this. The idea is to first make a new error class that represents the general error class. Then, when the script encounters an error, it will throw an error of the general class instead. The general error class will have a reference to the original error.
+```javascript
+class GeneralError extends Error {
+    constructor(message, cause) {
+        super(message);
+        this.name = "GeneralError";
+        this.cause=cause;
+    }
+}
+
+
+function func() {
+    try {
+        // code
+    } catch (e) {
+        if(e instanceof SyntaxError) {
+            throw new GeneralError("SyntaxError", e);
+        }
+    }
+
+    try {
+        // code
+    } catch (e) {
+        if(e instanceof ReferenceError) {
+            throw new GeneralError("ReferenceError", e);
+        }
+    }
+}
+
+try {
+    func();
+} catch (e) {
+    if(e instanceof GeneralError) {
+        // code
+    }
+    else {
+        throw e;
+    }
+}
+```
