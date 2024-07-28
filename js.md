@@ -457,3 +457,187 @@ try {
     }
 }
 ```
+## Chapter 5 - Asynchronous Javascript
+#### Async, Callbacks
+There are functions in Javascript which perform 'asynchronous' actions; actions initiate now, but finish later. Thus, the code below a asynchronous function call might execute before the function call completes. One way to gurantee that a code runs after a asynchronous function call completes is to use callbacks.
+
+##### Callbacks
+By passing code as a 'callback' function to the async function, we can guarantee that the code runs after the async function completes. The following is an example of a async function call(loadScript) with a callback function.
+```javascript
+function loadScript (src, callback) {
+    let script = document.createElement('script');
+    script.src = src;
+    script.onload = () => callback(script);
+    document.head.append(script);
+}
+
+loadScript("some_src", (script) => {});
+```
+##### Error Handling
+To implement error handling, we could call the callback with an error object.
+```javascript
+function loadScript (src, callback) {
+    let script = document.createElement('script');
+    script.src = src;
+    script.onload = () => callback(null, script);
+    script.onerror = () => callback(new Error("msg"));
+    document.head.append(script);
+}
+
+loadScript("some_src", (error, script) => {
+    if(error) {
+        // handle error
+    }
+    else {
+        // code
+    }
+});
+```
+This style of error handling is called the error-first callback style. The convention is:
+1. The first argument of the callback is reserved for the error. When an error occurs, `callback(err)` is called.
+2. The second, and if necessary later arguments are used if no error occurs. In this case, `callback(null, arg1, arg2, ...)` is called.
+
+##### Callback Hell
+This kind of approach can be a problem when calling multiple asynchronous functions in sequence:
+```javascript
+loadScript("src", function(e, script) {
+    if(e) {
+        // handle error
+    }
+    else {
+        // code
+        loadScript("src", function(e, script) {
+            if(e) {
+                // handle error
+            }
+            else {
+                // code
+                loadScript("src", function(e, script) {
+                    if(e) {
+                        // handle error
+                    }
+                    else {
+                        // more callbacks
+                    }
+                });
+            }
+        });
+    }
+});
+```
+To avoid callback hell, other methods such as promises are used.
+
+#### Promises
+##### The Promise Object
+Promises are a smarter way to process asynchronous operations. The constructor syntax for a promise object is:
+```javascript
+let promise = new Promise(function(resolve, reject) {
+    //executor code
+});
+```
+The function passed to the object is called the *executor*. It is executed automatically when the promise object is created. The `resolve` and `reject` methods are provided automatically by javascript. When the async call finishes executing, the executor should call either `resolve` or `reject`.
+
+- `resolve(value)` should be called when the job is completed successfully. The `value` parameter is the result of the asynchronous call. 
+- `reject(error)`, should be called if an error occurs during execution. The `error` parameter is an error object. 
+
+The `promise` object has two properties: `state` and `result`. 
+- `state` is initially set to `"pending"`, and changes to `"fulfilled"` when `resolve` is called or `"rejected"` when `reject` is called.
+- `result` is initially set to `undefined`, and changes to `value` or `error`, depending on the resolution of the promise.
+
+##### then
+To run code after an asynchronous call, use `.then`. The syntax is:
+```javascript
+promise.then(function(result) {}, function(error) {});
+```
+The first function is called when the promise is resolved successfully, and the second function is called when the promise is rejected.The second function can be omitted when you only care about the value of the promise, and you can use the `.catch` function(or set the first function of `.then` to `null`) if you only care about errors.
+
+Finally, the call `.finally`, which always runs without depending on the resolution of the promise, is availiable for cleanup purposes.
+#### Promise Chaining
+##### Chaining 'then'
+`.then` handlers can be chained together to form a chain. Each `then` returns a promise, which the next `then` processes.
+```javascript
+new Promise(function(resolve, reject) {
+    // code
+}).then(function(result) {
+    // code
+    return result;
+}).then(function(result) {
+    // code
+    return result;
+}).then(function(result) {
+    // code
+    return result;
+});
+```
+To be more precise, the `then` handler wraps the return value in a resolved promise.
+
+##### Returning Promises
+`then` can also make return a promise to chain multiple asynchronous calls.
+```javascript
+new Promise(function(resolve, reject) {
+    // code
+}).then(function(result) {
+    // code
+    return new Promise(function(resolve, reject) {
+        // code
+    });
+}).then(function(result) {
+    // code
+    return new Promise(function(resolve, reject) {
+        // code
+    });
+});
+```
+
+It is good practice to make sure that every `then` returns a promise. This makes the `then` chain 'extendable'; you can chain more `then` handlers when you need to.
+
+##### Error Handling
+Executors and promise handlers have an implicit `try..catch` around it, so when an error is encountered it automatically calls `reject`. When `reject` is called, the execution jumps to the nearest error handler. Rethrowing is possible in the same way as is done in `try..catch`. 
+
+##### Promisification
+'Promisification' means tranforming a function that accepts a callback into one that returns a promise. Since many functions in libraries are callback-based, this is often necessary.
+```javascript
+function promisify(f, manyArgs=false) {
+    return function(...args) {
+        return new Promise((resolve, reject) => {
+            function callback(err, results) {
+                if(err) {
+                    reject(err);
+                } else {
+                    resolve(manyArgs ? results : results[0]);
+                }
+            }
+            
+            args.push(callback);
+
+            f.call(this, ...args);
+        })
+    }
+}
+```
+This function, when called with a callback-based function, returns a wrapper function which returns a promise for every function call. 
+
+#### Async / Await
+The `async` and `await` syntax is an extremely elegant way to work with asynchronous operations.
+
+##### Async functions
+To define a async function, put the `async` keyword before the function decleration:
+```javascript
+async function f() {};
+```
+The `async` keyword guarantees that the function returns a promise.
+
+##### Await
+The `await` keyword can only be used inside an async function, and when used with a promise makes Javascript 'wait' until the promise is done with execution. It returns the value of the promise.
+```javascript
+async function f() {
+    let promise = new Promise(function(resolve, reject) {
+        setTimeout(() => resolve("done"), 1000);
+    });
+
+    let result = await promise;
+
+    alert(result); // "done"
+}
+```
+Error handling is easy too; When the promise is rejected, the await keyword behaves as if the error is thrown from that line. A simple `try..catch` can be used to then handle the error.
